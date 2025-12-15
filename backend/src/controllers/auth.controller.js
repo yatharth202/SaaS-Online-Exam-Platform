@@ -33,12 +33,12 @@ const registerUser = asyncHandler(async (req,res) => {
     }
 
     return res.status(201).json(
-         new ApiResponse(200, createdUser, "User registered Successfully")
+         new ApiResponse(201, createdUser, "User registered Successfully")
     )
 })
 
 
-const loginUser = asyncHandler(async(res,req) => {
+const loginUser = asyncHandler(async(req,res) => {
     const {email,password} = req.body;
 
     if(!email || !password) {
@@ -51,7 +51,7 @@ const loginUser = asyncHandler(async(res,req) => {
         throw new ApiError(404,"User not found")
     }
 
-    const isPasswordValid = await user.isPasswordValid(password)
+    const isPasswordValid = await user.isPasswordCorrect(password)
 
     if(!isPasswordValid){
         throw new ApiError(401,"Invalid credentials");
