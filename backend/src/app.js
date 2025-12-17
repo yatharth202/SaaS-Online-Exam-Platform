@@ -23,4 +23,19 @@ app.get("/health", (req, res) => {
   });
 });
 
+
+import { verifyJWT } from "./middlewares/auth.middleware.js";
+
+app.get("/protected", verifyJWT, (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "You accessed a protected route",
+    user: req.user
+  });
+});
+
+import examRoutes from "./routes/exam.routes.js";
+
+app.use("/api/v1/exams", examRoutes);
+
 export default app;
