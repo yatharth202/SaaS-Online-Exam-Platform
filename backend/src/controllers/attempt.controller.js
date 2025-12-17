@@ -204,3 +204,73 @@ export const getResult = asyncHandler(async(req,res) =>{
         )
     );
 });
+
+
+export const getExamAttemptsAnalytics = asyncHandler(async (req, res) => {
+    const { examId } = req.params;
+
+
+    const exam = await Exam.findById(examId);
+    if (!exam){
+        throw new ApiError(404, "Exam not found");
+    }
+
+
+    const attempts = await Attempt.find({
+        examId,
+        status: "submitted",
+    }).populate("studentId", "fullName email");
+
+    const totalAttempts = attempts.length;
+
+    if (totalAttempts === 0) {
+        return res.status(200).json(
+        new ApiResponse(200,
+        {
+          totalAttempts: 0,
+          averageScore: 0,
+          passPercentage: 0,
+          attempts: [],
+        },
+        "No attempts found for this exam"
+      )
+    );
+  }
+
+
+    let totalScore = 0;
+    let passCount = 0;
+
+    for (const attempt of attempts) {
+        totalScore += attempt.score;
+    if(attempt.result === "pass") {
+        passCount++;
+    }
+  }
+
+    const averageScore = Number(
+        (totalScore / totalAttempts).toFixed(2)
+    );
+
+    const passPercentage = Number(
+        ((passCount / totalAttempts) * 100).toFixed(2)
+    );
+
+  
+    return res.status(200).json(
+        new ApiResponse(200,
+    {
+        totalAttempts,
+        averageScore,
+        passPercentage,
+        attempts: attempts.map((a) => ({
+          student: a.studentId,
+          score: a.score,
+          result: a.result,
+          submittedAt: a.submittedAt,
+    })),
+      },
+      "Exam attempts analytics fetched successfully"
+    )
+  );
+});
