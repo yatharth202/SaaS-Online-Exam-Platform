@@ -38,4 +38,8 @@ import examRoutes from "./routes/exam.routes.js";
 
 app.use("/api/v1/exams", examRoutes);
 
+import attemptRoutes from "./routes/attempt.routes.js";
+
+app.use("/api/v1/attempts", attemptRoutes);
+
 export default app;
