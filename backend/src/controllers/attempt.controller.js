@@ -178,3 +178,29 @@ export const sumbitExamAttempt = asyncHandler(async(req,res) => {
   );
 });
 
+
+export const getResult = asyncHandler(async(req,res) =>{
+    const {examId} = req.params;
+    const studentId = req.user._id;
+
+    const attempt = await Attempt.findOne({examId,studentId});
+
+    if(!attempt){
+        throw new ApiError(404,"No attempt found for this exam");
+    }
+
+    if(attempt.status!=="submitted"){
+        throw new ApiError(403,"Exam is not submitted yet");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200,
+            {
+                score: attempt.score,
+                result: attempt.result,
+                submittedAt: attempt.submittedAt
+            },
+            "Exam result fetched succesfully"
+        )
+    );
+});

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {startExamAttempt,submitExamAttempt} from "../controllers/attempt.controller.js";
+import {startExamAttempt,submitExamAttempt,getResult} from "../controllers/attempt.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { isStudent } from "../middlewares/role.middleware.js";
 
@@ -12,3 +12,7 @@ router.post("/start/:examId",verifyJWTerifyJWT,isStudent,startExamAttempt);
 router.post("/submit/:attemptId",verifyJWT,isStudent,submitExamAttempt);
 
 export default router;
+
+
+router.get("/my/:examId",verifyJWT,isStudent,getResult);
+
