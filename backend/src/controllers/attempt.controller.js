@@ -1,4 +1,3 @@
-import { json } from "body-parser";
 import { Attempt } from "../models/attempt.model.js";
 import { Exam } from "../models/exam.model.js";
 import { Question } from "../models/question.model.js";
@@ -14,7 +13,7 @@ export const startExamAttempt = asyncHandler(async(req,res) =>{
 
     const exam = await Exam.findById(examId);
 
-    if(!exam){
+    if(!exam){''
         throw new ApiError(404,"Exam not found");
     }
 
@@ -78,7 +77,7 @@ export const startExamAttempt = asyncHandler(async(req,res) =>{
 
 
 //sumbit exam 
-export const sumbitExamAttempt = asyncHandler(async(req,res) => {
+export const submitExamAttempt = asyncHandler(async (req, res) => {
     const {attemptId} = req.params;
     const {answers} = req.body;
     const studentId = req.user._id;
@@ -130,7 +129,7 @@ export const sumbitExamAttempt = asyncHandler(async(req,res) => {
     const questions = await Question.find({ examId: exam._id });
 
     //  Evaluation 
-    let score = 0;
+    let score = 0;  
     const evaluatedAnswers = [];
 
     for (const question of questions) {
@@ -249,11 +248,11 @@ export const getExamAttemptsAnalytics = asyncHandler(async (req, res) => {
   }
 
     const averageScore = Number(
-        (totalScore / totalAttempts).toFixed(2)
+        (totalScore/totalAttempts).toFixed(2)
     );
 
     const passPercentage = Number(
-        ((passCount / totalAttempts) * 100).toFixed(2)
+        ((passCount/totalAttempts)*100).toFixed(2)
     );
 
   

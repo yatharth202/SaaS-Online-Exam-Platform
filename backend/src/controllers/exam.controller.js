@@ -146,3 +146,15 @@ export const getAvailableExams = asyncHandler(async(req,res) => {
         new ApiResponse(200,exams,"Available exams fetched sucessfully")
     )
 })
+
+
+export const getExamQuestions = asyncHandler(async (req, res) => {
+  const { examId } = req.params;
+
+  const questions = await Question.find({ examId })
+    .select("questionText options");
+
+  return res.status(200).json(
+    new ApiResponse(200, questions, "Questions fetched successfully")
+  );
+});
