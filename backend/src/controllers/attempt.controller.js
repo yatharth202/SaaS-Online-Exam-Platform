@@ -76,7 +76,7 @@ export const startExamAttempt = asyncHandler(async(req,res) =>{
 })
 
 
-//sumbit exam 
+
 export const submitExamAttempt = asyncHandler(async (req, res) => {
     const {attemptId} = req.params;
     const {answers} = req.body;
@@ -87,13 +87,10 @@ export const submitExamAttempt = asyncHandler(async (req, res) => {
     if(!attempt){
         throw new ApiError(404,"Attemp not found ");
     }
-    
-    // should be logged in 
+
     if (attempt.studentId.toString() !== studentId.toString()) {
         throw new ApiError(403, "Unauthorized attempt access");
     }
-
-    //already sumbitted 
     if(attempt.status==="submitted"){
         return res.status(200).json(
             new ApiResponse(200,
@@ -107,7 +104,7 @@ export const submitExamAttempt = asyncHandler(async (req, res) => {
         )
     }
 
-    //fetch 
+    
     const exam = await Exam.findById(attempt.examId);
 
     if(!exam){
@@ -125,10 +122,9 @@ export const submitExamAttempt = asyncHandler(async (req, res) => {
 
     attempt.submittedAt = now > allowedUntil ? allowedUntil : now;
 
-    // Fetch all questions
     const questions = await Question.find({ examId: exam._id });
 
-    //  Evaluation 
+
     let score = 0;  
     const evaluatedAnswers = [];
 
@@ -155,7 +151,7 @@ export const submitExamAttempt = asyncHandler(async (req, res) => {
     });
   }
 
-    // Lock attempt
+
     attempt.answers = evaluatedAnswers;
     attempt.score = score;
     attempt.result = score >= exam.passingMarks ? "pass" : "fail";
@@ -273,3 +269,30 @@ export const getExamAttemptsAnalytics = asyncHandler(async (req, res) => {
     )
   );
 });
+
+
+export const getStudentDashboard = asyncHandler(async(req,res) => {
+    const studentId = req.user._id;
+
+    const totalExams = await Exam.countDocuments({isPublished:  true});
+  const attempts = await Attempt.find({ studentId });
+
+
+  const submittedAttempts = attempts.filter(
+    (a) => a.status === "submitted"
+  );
+
+  const attempted = attempts.length;
+  const passed = submittedAttempts.filter((a) => a.result === "pass");
+  const failed = submittedAttempts.filter((a) => a.result === "fail");
+
+  return res.status(200).json(
+    new ApiResponse(200, {
+      totalExams,
+      attempted,          
+      passed: passed.length,
+      failed: failed.length,
+    })
+  );
+});
+
